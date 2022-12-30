@@ -1,0 +1,31 @@
+name: Build + Tests
+
+on: [push, pull_request]
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET 
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: 7.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --no-restore --configuration Release
+    - name: Unit Tests (dotnet test)
+      run: dotnet test --collect:"XPlat Code Coverage" --no-restore --configuration Release
+    - name: Code Coverage Report
+      uses: irongut/CodeCoverageSummary@v1.3.0
+      with:
+        filename: ResultWrapper.Tests/TestResults/**/coverage.cobertura.xml
+        badge: true
+        fail_below_min: true
+        format: markdown
+        hide_branch_rate: false
+        hide_complexity: true
+        indicators: true
+        output: both
+        thresholds: '100 100'
+
